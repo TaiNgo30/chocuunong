@@ -86,30 +86,10 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      <HeroSlider />
-
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-green-50 to-green-100 py-8">
         <div className="container mx-auto px-4 text-center">
-          {/* Search Bar */}
-          <form onSubmit={handleSearch} className="max-w-2xl mx-auto mb-8 mt-4">
-            <div className="relative">
-              <Input
-                type="text"
-                placeholder="Tìm kiếm nông sản: cà chua, gạo, cà phê..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="text-lg py-4 pr-16 pl-6 rounded-full border-2 border-green-200 focus:border-green-400"
-              />
-              <Button
-                type="submit"
-                size="lg"
-                className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-green-600 hover:bg-green-700 rounded-full px-6"
-              >
-                <Search className="h-5 w-5" />
-              </Button>
-            </div>
-          </form>
+
           <div className="flex flex-wrap justify-center gap-4">
             <Link to="/products">
               <Button size="lg" className="bg-green-600 hover:bg-green-700">
@@ -124,76 +104,69 @@ const Index = () => {
           </div>
         </div>
       </section>
-
-      {/* Categories Section */}
+      {/* Categories + Featured Products Side-by-Side */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-bold text-center mb-12 text-gray-800">
-            Danh mục sản phẩm
-          </h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6">
-            {categories.map((category) => (
-              <Link
-                key={category.id}
-                to={`/products?category=${category.id}`}
-                className="text-center p-6 rounded-lg border hover:shadow-lg transition-shadow bg-white hover:bg-green-50 group"
-              >
-                <div className="text-4xl mb-3">{category.icon}</div>
-                <h3 className="font-semibold text-gray-800 group-hover:text-green-600">
-                  {category.name}
-                </h3>
-                <p className="text-sm text-gray-600 mt-1">{category.description}</p>
-              </Link>
-            ))}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+            {/* Danh mục 30% */}
+            <div className="lg:col-span-4">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">Danh mục sản phẩm</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-1 gap-4">
+                {categories.map((category) => (
+                  <Link
+                    key={category.id}
+                    to={`/products?category=${category.id}`}
+                    className="flex items-center p-4 rounded-lg border hover:shadow-md transition bg-white hover:bg-green-50 group"
+                  >
+                    <div className="text-3xl mr-4">{category.icon}</div>
+                    <div>
+                      <h3 className="font-semibold text-gray-800 group-hover:text-green-600">
+                        {category.name}
+                      </h3>
+                      <p className="text-sm text-gray-600">{category.description}</p>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+
+            {/* Sản phẩm nổi bật 70% */}
+            <div className="lg:col-span-8">
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-2xl font-bold text-gray-800">Sản phẩm nổi bật</h2>
+                <Link to="/products">
+                  <Button variant="outline" className="border-green-600 text-green-600 hover:bg-green-50">
+                    Xem tất cả
+                  </Button>
+                </Link>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {featuredProducts.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    product={{
+                      id: product.id,
+                      name: product.name,
+                      price: Number(product.price),
+                      originalPrice: Number(product.original_price || product.price),
+                      unit: product.unit,
+                      image: product.image_url || "/placeholder.svg",
+                      farmer: product.profiles?.full_name || "Nông dân",
+                      location: product.location || "Việt Nam",
+                      rating: 4.8,
+                      reviews: 124,
+                      category: product.categories?.name || "Nông sản",
+                      discount: product.original_price ? Math.round((1 - Number(product.price) / Number(product.original_price)) * 100) : 0
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* Featured Products */}
-      <section className="py-16 bg-gray-50">
-        <div className="container mx-auto px-4">
-          <div className="flex justify-between items-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-800">Sản phẩm nổi bật</h2>
-            <Link to="/products">
-              <Button variant="outline" className="border-green-600 text-green-600 hover:bg-green-50">
-                Xem tất cả
-              </Button>
-            </Link>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {featuredProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={{
-                  id: product.id,
-                  name: product.name,
-                  price: Number(product.price),
-                  originalPrice: Number(product.original_price || product.price),
-                  unit: product.unit,
-                  image: product.image_url || "/placeholder.svg",
-                  farmer: product.profiles?.full_name || "Nông dân",
-                  location: product.location || "Việt Nam",
-                  rating: 4.8,
-                  reviews: 124,
-                  category: product.categories?.name || "Nông sản",
-                  discount: product.original_price ? Math.round((1 - Number(product.price) / Number(product.original_price)) * 100) : 0
-                }}
-                onViewDetails={() => {
-                  // Update view count
-                  supabase
-                    .from('products')
-                    .update({ views: (product.views || 0) + 1 })
-                    .eq('id', product.id)
-                    .then(() => {
-                      console.log('View count updated');
-                    });
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* <HeroSlider /> */}
 
       {/* Features Section */}
       <section className="py-16 bg-white">
@@ -221,6 +194,23 @@ const Index = () => {
         </div>
       </section>
 
+      {/* Video Section */}
+      <section className="py-16 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <h2 className="text-3xl font-bold text-center mb-8 text-gray-800">Cùng xem hành trình giải cứu nông sản</h2>
+          <div className="relative" style={{ paddingTop: '56.25%' }}>
+            <iframe
+              className="absolute top-0 left-0 w-full h-full rounded-xl shadow-lg"
+              src="https://www.youtube.com/embed/fFozI5lRTrQ"
+              title="YouTube video player"
+              frameBorder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            ></iframe>
+          </div>
+        </div>
+      </section>
+
       {/* CTA Section */}
       <section className="py-16 bg-green-600 text-white">
         <div className="container mx-auto px-4 text-center">
@@ -237,7 +227,7 @@ const Index = () => {
               </Button>
             </Link>
             <Link to="/products">
-              <Button size="lg" variant="outline" className="border-white text-white hover:bg-white hover:text-green-600">
+              <Button size="lg" variant="secondary" className="bg-white text-green-600 hover:bg-gray-100">
                 Mua sắm ngay
               </Button>
             </Link>
