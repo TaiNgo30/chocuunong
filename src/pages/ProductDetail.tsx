@@ -109,7 +109,7 @@ const ProductDetail = () => {
                             <Tabs defaultValue="description" className="w-full">
                                 <TabsList className="w-full justify-start border-b rounded-none">
                                     <TabsTrigger value="description">Mô tả sản phẩm</TabsTrigger>
-                                    <TabsTrigger value="specifications">Thông số kỹ thuật</TabsTrigger>
+                                    <TabsTrigger value="specifications">Thông tin sản phẩm</TabsTrigger>
                                     <TabsTrigger value="reviews">Đánh giá</TabsTrigger>
                                 </TabsList>
                                 <TabsContent value="description" className="p-6">
@@ -147,10 +147,10 @@ const ProductDetail = () => {
                                     <div className="flex items-center mt-2 space-x-2">
                                         <div className="flex items-center">
                                             <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                                            <span className="ml-1 text-gray-600">4.8</span>
+                                            <span className="ml-1 text-gray-600">4.9</span>
                                         </div>
                                         <span className="text-gray-400">|</span>
-                                        <span className="text-gray-600">124 đánh giá</span>
+                                        <span className="text-gray-600">100 đánh giá</span>
                                     </div>
                                 </div>
 

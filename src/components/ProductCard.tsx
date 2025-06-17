@@ -50,13 +50,22 @@ const ProductCard = ({ product }: ProductCardProps) => {
     fetchProfile();
   }, [user]);
 
+  // Helper for guest cart
+  function addToGuestCart(product) {
+    const cart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+    const idx = cart.findIndex((item) => item.id === product.id);
+    if (idx !== -1) {
+      cart[idx].quantity = (cart[idx].quantity || 1) + 1;
+    } else {
+      cart.push({ ...product, quantity: 1 });
+    }
+    localStorage.setItem('guest_cart', JSON.stringify(cart));
+  }
+
   const handleAddToCart = async () => {
     if (!user) {
-      toast.error("Bạn cần đăng nhập để thêm vào giỏ hàng");
-      return;
-    }
-    if (userType !== "buyer") {
-      toast.error("Chỉ người mua mới được thêm vào giỏ hàng");
+      addToGuestCart(product);
+      toast.success("Đã thêm vào giỏ hàng!");
       return;
     }
     try {
@@ -96,11 +105,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   const handleBuyNow = async () => {
     if (!user) {
-      toast.error("Bạn cần đăng nhập để mua hàng");
-      return;
-    }
-    if (userType !== "buyer") {
-      toast.error("Chỉ người mua mới được mua hàng");
+      addToGuestCart(product);
+      navigate('/checkout');
       return;
     }
     try {

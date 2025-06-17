@@ -18,7 +18,7 @@ const Checkout = () => {
   const [loading, setLoading] = useState(false);
   const [cartItems, setCartItems] = useState([]);
   const [userProfile, setUserProfile] = useState(null);
-  
+
   const [formData, setFormData] = useState({
     shipping_address: '',
     shipping_phone: '',
@@ -28,28 +28,32 @@ const Checkout = () => {
 
   useEffect(() => {
     if (!user) {
-      navigate('/auth');
-      return;
+      // Guest: load cart from localStorage
+      const guestCart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+      setCartItems(guestCart.map(item => ({
+        ...item,
+        products: item // mimic supabase cart_items join
+      })));
+    } else {
+      fetchCartItems();
+      fetchUserProfile();
     }
-    
-    fetchCartItems();
-    fetchUserProfile();
-  }, [user, navigate]);
+  }, [user]);
 
   const fetchUserProfile = async () => {
     if (!user) return;
-    
+
     const { data, error } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', user.id)
       .single();
-    
+
     if (error) {
       console.error('Error fetching profile:', error);
       return;
     }
-    
+
     setUserProfile(data);
     setFormData(prev => ({
       ...prev,
@@ -60,7 +64,7 @@ const Checkout = () => {
 
   const fetchCartItems = async () => {
     if (!user) return;
-    
+
     const { data, error } = await supabase
       .from('cart_items')
       .select(`
@@ -71,12 +75,12 @@ const Checkout = () => {
         )
       `)
       .eq('user_id', user.id);
-    
+
     if (error) {
       console.error('Error fetching cart items:', error);
       return;
     }
-    
+
     setCartItems(data || []);
   };
 
@@ -88,10 +92,8 @@ const Checkout = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user || cartItems.length === 0) return;
-    
+    if (cartItems.length === 0) return;
     setLoading(true);
-    
     try {
       // Group items by seller
       const itemsBySeller = cartItems.reduce((acc, item) => {
@@ -103,7 +105,6 @@ const Checkout = () => {
         return acc;
       }, {});
 
-      // Create orders for each seller
       for (const [sellerId, items] of Object.entries(itemsBySeller)) {
         const orderTotal = items.reduce((total, item) => {
           return total + (item.products.price * item.quantity);
@@ -112,7 +113,7 @@ const Checkout = () => {
         const { data: order, error: orderError } = await supabase
           .from('orders')
           .insert({
-            buyer_id: user.id,
+            buyer_id: user ? user.id : null,
             seller_id: sellerId,
             total_amount: orderTotal,
             payment_method: formData.payment_method,
@@ -128,7 +129,7 @@ const Checkout = () => {
         // Create order items
         const orderItems = items.map(item => ({
           order_id: order.id,
-          product_id: item.product_id,
+          product_id: item.product_id || item.id,
           quantity: item.quantity,
           price: item.products.price
         }));
@@ -141,12 +142,15 @@ const Checkout = () => {
       }
 
       // Clear cart
-      const { error: clearCartError } = await supabase
-        .from('cart_items')
-        .delete()
-        .eq('user_id', user.id);
-
-      if (clearCartError) throw clearCartError;
+      if (user) {
+        const { error: clearCartError } = await supabase
+          .from('cart_items')
+          .delete()
+          .eq('user_id', user.id);
+        if (clearCartError) throw clearCartError;
+      } else {
+        localStorage.removeItem('guest_cart');
+      }
 
       toast.success('Đặt hàng thành công!');
       navigate('/orders');
@@ -165,19 +169,16 @@ const Checkout = () => {
     }).format(price);
   };
 
-  if (!user) {
-    return null;
-  }
-
+  // Guest users are allowed, so always render
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
-      
+
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
           <div className="flex items-center mb-6">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               onClick={() => navigate('/cart')}
               className="mr-4"
             >
@@ -249,9 +250,9 @@ const Checkout = () => {
 
                   <div>
                     <Label htmlFor="payment_method">Phương thức thanh toán</Label>
-                    <Select 
-                      value={formData.payment_method} 
-                      onValueChange={(value: 'cod' | 'bank_transfer' | 'e_wallet') => 
+                    <Select
+                      value={formData.payment_method}
+                      onValueChange={(value: 'cod' | 'bank_transfer' | 'e_wallet') =>
                         setFormData(prev => ({ ...prev, payment_method: value }))
                       }
                     >
@@ -277,9 +278,9 @@ const Checkout = () => {
                     />
                   </div>
 
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-green-600 hover:bg-green-700" 
+                  <Button
+                    type="submit"
+                    className="w-full bg-green-600 hover:bg-green-700"
                     disabled={loading || cartItems.length === 0}
                   >
                     {loading ? 'Đang xử lý...' : `Đặt hàng ${formatPrice(calculateTotal())}`}

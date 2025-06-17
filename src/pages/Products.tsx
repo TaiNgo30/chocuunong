@@ -222,8 +222,8 @@ const Products = () => {
                   image: product.image_url || "/placeholder.svg",
                   farmer: product.profiles?.full_name || "Nông dân",
                   location: product.location || "Việt Nam",
-                  rating: 4.8,
-                  reviews: 124,
+                  rating: 4.9,
+                  reviews: 100,
                   category: product.categories?.name || "Nông sản",
                   discount: product.original_price ? Math.round((1 - Number(product.price) / Number(product.original_price)) * 100) : 0
                 }} />
