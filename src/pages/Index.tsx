@@ -8,6 +8,7 @@ import Header from "@/components/Header";
 import ProductCard from "@/components/ProductCard";
 import { supabase } from '@/integrations/supabase/client';
 import HeroSlider from "@/components/HeroSlider";
+import ChatWidget from "@/components/ChatWidget";
 
 const Index = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -101,6 +102,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-white">
       <Header />
+      <ChatWidget />
       {/* Hero Section */}
       <section className="bg-gradient-to-br from-green-50 to-green-100 py-8">
         <div className="container mx-auto px-4 text-center">
