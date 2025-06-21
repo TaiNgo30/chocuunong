@@ -57,9 +57,9 @@ const Header = () => {
               <span className="text-xs text-yellow-600 font-semibold tracking-wide">Nông sản sạch - Giá Việt - Giao tận nơi</span>
             </div>
           </Link>
-          <a href="https://chocuunong.liteease.com" target="_blank" rel="noopener noreferrer" className="ml-4 px-3 py-1 rounded-full bg-yellow-300 text-green-900 font-bold text-xs shadow hover:bg-yellow-400 transition hidden md:inline-block animate-pulse">
+          {/* <a href="https://chocuunong.liteease.com" target="_blank" rel="noopener noreferrer" className="ml-4 px-3 py-1 rounded-full bg-yellow-300 text-green-900 font-bold text-xs shadow hover:bg-yellow-400 transition hidden md:inline-block animate-pulse">
             Website mới: chocuunong.liteease.com
-          </a>
+          </a> */}
 
           {/* Search bar */}
           <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-lg mx-8">

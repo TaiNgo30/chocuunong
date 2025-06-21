@@ -298,9 +298,9 @@ const Index = () => {
               <p className="text-gray-400 mb-2">
                 Nền tảng kết nối nông dân và người tiêu dùng, hướng tới nền nông nghiệp bền vững.
               </p>
-              <a href="https://chocuunong.liteease.com" target="_blank" rel="noopener noreferrer" className="mt-2 px-3 py-1 rounded-full bg-yellow-300 text-green-900 font-bold text-xs shadow hover:bg-yellow-400 transition animate-pulse">
+              {/* <a href="https://chocuunong.liteease.com" target="_blank" rel="noopener noreferrer" className="mt-2 px-3 py-1 rounded-full bg-yellow-300 text-green-900 font-bold text-xs shadow hover:bg-yellow-400 transition animate-pulse">
                 Website mới: chocuunong.liteease.com
-              </a>
+              </a> */}
             </div>
             <div>
               <h4 className="font-semibold mb-4">Liên kết nhanh</h4>

@@ -4,7 +4,6 @@ import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Star, ShoppingCart, Heart, Share2, ChevronLeft, MapPin, Phone, Mail, Truck, Shield, RefreshCw } from "lucide-react";
-import { useCart } from "@/hooks/useCart";
 import { toast } from "sonner";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -12,13 +11,15 @@ import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useNavigate } from "react-router-dom";
 import ProductImageSlider from "@/components/ProductImageSlider";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 
 const ProductDetail = () => {
     const { id } = useParams();
     const { data: product, isLoading, error } = useProduct(id);
-    const { addToCart } = useCart();
     const [quantity, setQuantity] = useState(1);
     const navigate = useNavigate();
+    const { user } = useAuth();
 
     if (isLoading) {
         return (
@@ -46,20 +47,110 @@ const ProductDetail = () => {
         );
     }
 
-    const handleAddToCart = () => {
-        addToCart({ ...product, quantity });
-        toast.success("Đã thêm vào giỏ hàng", {
-            description: `${product.name} - ${quantity} ${product.unit}`,
-            action: {
-                label: "Xem giỏ hàng",
-                onClick: () => navigate('/cart'),
-            },
-        });
+    // Helper for guest cart
+    function addToGuestCart(product) {
+        const cart = JSON.parse(localStorage.getItem('guest_cart') || '[]');
+        const idx = cart.findIndex((item) => item.id === product.id);
+        if (idx !== -1) {
+            cart[idx].quantity = (cart[idx].quantity || 1) + product.quantity;
+        } else {
+            cart.push({ ...product });
+        }
+        localStorage.setItem('guest_cart', JSON.stringify(cart));
+    }
+
+    const handleAddToCart = async () => {
+        if (!user) {
+            addToGuestCart({ ...product, quantity });
+            toast.success("Đã thêm vào giỏ hàng!", {
+                description: `${product.name} - ${quantity} ${product.unit}`,
+                action: {
+                    label: "Xem giỏ hàng",
+                    onClick: () => navigate('/cart'),
+                },
+            });
+            return;
+        }
+        try {
+            // Kiểm tra đã có sản phẩm này trong giỏ chưa
+            const { data: existing, error: checkError } = await supabase
+                .from("cart_items")
+                .select("*")
+                .eq("user_id", String(user.id))
+                .eq("product_id", String(product.id))
+                .single();
+
+            if (checkError && checkError.code !== "PGRST116") throw checkError;
+
+            if (existing) {
+                // Nếu đã có, tăng số lượng
+                const { error } = await supabase
+                    .from("cart_items")
+                    .update({ quantity: existing.quantity + quantity })
+                    .eq("id", existing.id);
+                if (error) throw error;
+            } else {
+                // Nếu chưa có, thêm mới
+                const { error } = await supabase
+                    .from("cart_items")
+                    .insert({
+                        user_id: String(user.id),
+                        product_id: String(product.id),
+                        quantity,
+                    });
+                if (error) throw error;
+            }
+            toast.success("Đã thêm vào giỏ hàng!", {
+                description: `${product.name} - ${quantity} ${product.unit}`,
+                action: {
+                    label: "Xem giỏ hàng",
+                    onClick: () => navigate('/cart'),
+                },
+            });
+        } catch (err) {
+            toast.error("Có lỗi khi thêm vào giỏ hàng");
+        }
     };
 
-    const handleBuyNow = () => {
-        addToCart({ ...product, quantity });
-        navigate('/checkout');
+    const handleBuyNow = async () => {
+        if (!user) {
+            addToGuestCart({ ...product, quantity });
+            navigate('/checkout');
+            return;
+        }
+        try {
+            // Kiểm tra đã có sản phẩm này trong giỏ chưa
+            const { data: existing, error: checkError } = await supabase
+                .from("cart_items")
+                .select("*")
+                .eq("user_id", String(user.id))
+                .eq("product_id", String(product.id))
+                .single();
+
+            if (checkError && checkError.code !== "PGRST116") throw checkError;
+
+            if (existing) {
+                // Nếu đã có, cập nhật số lượng thành quantity (mua ngay chỉ lấy số lượng hiện tại)
+                const { error } = await supabase
+                    .from("cart_items")
+                    .update({ quantity })
+                    .eq("id", existing.id);
+                if (error) throw error;
+            } else {
+                // Nếu chưa có, thêm mới
+                const { error } = await supabase
+                    .from("cart_items")
+                    .insert({
+                        user_id: String(user.id),
+                        product_id: String(product.id),
+                        quantity,
+                    });
+                if (error) throw error;
+            }
+            navigate('/checkout');
+        } catch (err) {
+            toast.error("Có lỗi khi mua hàng");
+        }
     };
 
     const handleShare = () => {
@@ -93,7 +184,7 @@ const ProductDetail = () => {
                         <Card className="overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-500">
                             <div className="relative">
                                 <ProductImageSlider
-                                    images={product.images && product.images.length > 0 ? product.images : [product.image_url || "/placeholder.svg"]}
+                                    images={[product.image_url || "/placeholder.svg"]}
                                     alt={product.name}
                                 />
                                 {product.original_price && (
