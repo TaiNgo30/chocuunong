@@ -359,31 +359,12 @@ const ProductDetail = () => {
                             </div>
                         </Card>
 
-                        {/* Shipping Info */}
+                        {/* Shop Description */}
                         <Card className="p-6 shadow-lg">
-                            <div className="space-y-4">
-                                <div className="flex items-center space-x-3">
-                                    <Truck className="w-5 h-5 text-green-600" />
-                                    <div>
-                                        <p className="font-medium">Giao hàng toàn quốc</p>
-                                        <p className="text-sm text-gray-500">Miễn phí vận chuyển cho đơn từ 500.000đ</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center space-x-3">
-                                    <Shield className="w-5 h-5 text-green-600" />
-                                    <div>
-                                        <p className="font-medium">Bảo hành chất lượng</p>
-                                        <p className="text-sm text-gray-500">Đổi trả trong 7 ngày nếu không hài lòng</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center space-x-3">
-                                    <RefreshCw className="w-5 h-5 text-green-600" />
-                                    <div>
-                                        <p className="font-medium">Đổi trả dễ dàng</p>
-                                        <p className="text-sm text-gray-500">Hỗ trợ đổi trả nhanh chóng</p>
-                                    </div>
-                                </div>
-                            </div>
+                            <h3 className="font-medium text-lg mb-2">Giới thiệu cửa hàng</h3>
+                            <p className="text-gray-700 whitespace-pre-line">
+                                {product.profiles?.shop_description || "Chưa có mô tả về cửa hàng"}
+                            </p>
                         </Card>
                     </div>
                 </div>

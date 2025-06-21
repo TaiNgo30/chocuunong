@@ -16,7 +16,7 @@ export const useProducts = () => {
         .from('products')
         .select(`
           *,
-          profiles:seller_id(full_name, phone, address),
+          profiles:seller_id(full_name, phone, address, shop_description),
           categories:category_id(name, icon)
         `)
         .eq('status', 'approved')
@@ -43,7 +43,7 @@ export const useProduct = (id?: string) => {
         .from('products')
         .select(`
           *,
-          profiles:seller_id(full_name, phone, address),
+          profiles:seller_id(full_name, phone, address, shop_description),
           categories:category_id(name, icon)
         `)
         .eq('id', id)
