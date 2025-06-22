@@ -192,9 +192,7 @@ const Index = () => {
             Sứ mệnh của chúng tôi
           </h2>
           <div className="text-lg text-gray-700 leading-relaxed space-y-4 reveal">
-            <p>
-              Những nhà khởi nghiệp đại học FPT, mang trong mình khát vọng mãnh liệt, là ngọn lửa kết nối trái tim người nông dân Việt Nam với mọi gia đình trên dải đất hình chữ S.
-            </p>
+            <img className="w-full rounded-xl" src="/assets/images/cho-cuu-nong-su-menh.jpg"/>
             <p>
               Sứ mệnh của chúng tôi là <span className="font-semibold text-green-700">giải cứu nông sản</span>, đưa sản phẩm tươi ngon – đậm đà hồn quê – đến tay người tiêu dùng với mức giá bình dị.
             </p>
