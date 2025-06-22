@@ -1,26 +1,29 @@
-import * as React from 'react';
-import { Smile, Send } from 'lucide-react';
+import * as React from "react";
+import { Send, Smile } from "lucide-react";
+import clsx from "clsx";
 
 interface MessageComposeBarProps {
   message: string;
   onMessageChange: (value: string) => void;
   onSend: () => void;
+  enabled?: boolean;
 }
 
 const MessageComposeBar: React.FC<MessageComposeBarProps> = ({
   message,
   onMessageChange,
   onSend,
+  enabled,
 }) => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       onSend();
     }
   };
 
   return (
-    <div className="flex items-center gap-2 border-t border-gray-200 p-2">
+    <div className="flex items-center gap-2 border-t border-gray-200 p-2 pt-4">
       {/* Emoji Button */}
       <button
         type="button"
@@ -36,15 +39,22 @@ const MessageComposeBar: React.FC<MessageComposeBarProps> = ({
         value={message}
         onChange={(e) => onMessageChange(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Type a message..."
-        className="flex-1 px-4 py-2 border border-gray-300 rounded-full text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        placeholder="Nhập câu hỏi..."
+        className="flex-1 px-4 py-2 border border-gray-300 rounded-full text-sm outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+        disabled={enabled == false}
       />
 
       {/* Send Button */}
       <button
         type="button"
-        onClick={onSend}
-        className="p-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white transition"
+        onClick={(enabled != false && message.length > 0) ? onSend : () => { }}
+        className={clsx(
+          "p-2 rounded-full bg-green-600 hover:bg-green-700 text-white transition",
+          enabled != false && message.length > 0
+            ? "bg-green-600 hover:bg-green-700"
+            : "bg-gray-600 hover:bg-gray-700",
+        )}
+        disabled={enabled == false || message.length < 1}
         aria-label="Send message"
       >
         <Send size={18} />

@@ -1,0 +1,22 @@
+/*
+.chat-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: gray transparent;
+}
+*/
+
+.chat-scrollbar::-webkit-scrollbar {
+  width: 12px;
+}
+
+.chat-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-scrollbar::-webkit-scrollbar-thumb {
+  background-color: gray;
+  border-radius: 8px;
+  min-height: 60px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
