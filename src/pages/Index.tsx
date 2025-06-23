@@ -187,13 +187,15 @@ const Index = () => {
       {/* <HeroSlider /> */}
 
       {/* About Us Description Section */}
-      <section className="py-16 bg-white">
-        <div className="container mx-auto px-4 max-w-3xl text-center">
+      <section className="py-16 ps-1 bg-white flex flex-row flex-wrap justify-center">
+        <div className="px-2 ps-3 max-w-3xl text-center min-w-[700px]">
+        <img className="h-full rounded-xl" src="/assets/images/cho-cuu-nong-su-menh.jpg"/>
+        </div>
+        <div className="px-2 max-w-3xl text-center min-w-[700px]">
           <h2 className="text-3xl md:text-4xl font-extrabold text-green-700 mb-6">
             Sứ mệnh của chúng tôi
           </h2>
           <div className="text-lg text-gray-700 leading-relaxed space-y-4 reveal">
-            <img className="w-full rounded-xl" src="/assets/images/cho-cuu-nong-su-menh.jpg"/>
             <p>
               Sứ mệnh của chúng tôi là <span className="font-semibold text-green-700">giải cứu nông sản</span>, đưa sản phẩm tươi ngon – đậm đà hồn quê – đến tay người tiêu dùng với mức giá bình dị.
             </p>
