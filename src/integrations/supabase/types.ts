@@ -75,6 +75,41 @@ export type Database = {
         }
         Relationships: []
       }
+      cloud_uploads: {
+        Row: {
+          content_type: Database["public"]["Enums"]["file_content_type"]
+          id: string
+          ref: string | null
+          upload_at: string
+          url: string
+          user_id: string | null
+        }
+        Insert: {
+          content_type?: Database["public"]["Enums"]["file_content_type"]
+          id?: string
+          ref?: string | null
+          upload_at?: string
+          url: string
+          user_id?: string | null
+        }
+        Update: {
+          content_type?: Database["public"]["Enums"]["file_content_type"]
+          id?: string
+          ref?: string | null
+          upload_at?: string
+          url?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cloud_uploads_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           bot_receiver_id: Database["public"]["Enums"]["bot_identifier"] | null
@@ -503,18 +538,20 @@ export type Database = {
           bot_id: Database["public"]["Enums"]["bot_identifier"]
         }
         Returns: {
-          id: number
+          id: string
           content: string
           sender_id: string
           receiver_id: string
           bot_sender_id: Database["public"]["Enums"]["bot_identifier"]
           bot_receiver_id: Database["public"]["Enums"]["bot_identifier"]
+          created_at: string
           similarity: number
         }[]
       }
     }
     Enums: {
       bot_identifier: "openai_virtual_assistant"
+      file_content_type: "uncategorized" | "product_image"
       order_status:
         | "pending"
         | "confirmed"
@@ -648,6 +685,7 @@ export const Constants = {
   public: {
     Enums: {
       bot_identifier: ["openai_virtual_assistant"],
+      file_content_type: ["uncategorized", "product_image"],
       order_status: [
         "pending",
         "confirmed",
@@ -673,3 +711,7 @@ export const Constants = {
 
 export const BOT_IDENTIFICATIONS = Constants.public.Enums.bot_identifier;
 export type BotIdentification = (typeof BOT_IDENTIFICATIONS)[number];
+
+export const FILE_CONTENT_TYPES = Constants.public.Enums.file_content_type;
+export type FileContentType = (typeof FILE_CONTENT_TYPES)[number];
+

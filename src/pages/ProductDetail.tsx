@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Star, ShoppingCart, Heart, Share2, ChevronLeft, MapPin, Phone, Mail, Truck, Shield, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -13,6 +13,7 @@ import { useNavigate } from "react-router-dom";
 import ProductImageSlider from "@/components/ProductImageSlider";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import { useUploadRecords } from "@/hooks/useUploadRecords";
 
 const ProductDetail = () => {
     const { id } = useParams();
@@ -20,6 +21,24 @@ const ProductDetail = () => {
     const [quantity, setQuantity] = useState(1);
     const navigate = useNavigate();
     const { user } = useAuth();
+
+    const {data: productImages, isLoading: productImagesLoading, error: productImagesError} = useUploadRecords({
+      content_type: "product_image",
+      ref: id,
+    });
+
+    const slideUrls = useMemo(() => {
+      // const result = [product.image_url || "/placeholder.svg"];
+      const result = [];
+      if (productImages) {
+        result.push(...productImages.map((image) => image.url));
+      }
+      else {
+        result.push(product.image_url || "/placeholder.svg");
+      }
+
+      return result;
+    }, [product.image_url, productImages])
 
     if (isLoading) {
         return (
@@ -184,7 +203,7 @@ const ProductDetail = () => {
                         <Card className="overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-500">
                             <div className="relative">
                                 <ProductImageSlider
-                                    images={[product.image_url || "/placeholder.svg"]}
+                                    images={slideUrls}
                                     alt={product.name}
                                 />
                                 {product.original_price && (
