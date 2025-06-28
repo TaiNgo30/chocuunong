@@ -387,6 +387,7 @@ export type Database = {
           full_name: string | null
           id: string
           is_verified: boolean | null
+          payment_description: string | null
           phone: string | null
           shop_description: string | null
           updated_at: string
@@ -399,6 +400,7 @@ export type Database = {
           full_name?: string | null
           id: string
           is_verified?: boolean | null
+          payment_description?: string | null
           phone?: string | null
           shop_description?: string | null
           updated_at?: string
@@ -411,6 +413,7 @@ export type Database = {
           full_name?: string | null
           id?: string
           is_verified?: boolean | null
+          payment_description?: string | null
           phone?: string | null
           shop_description?: string | null
           updated_at?: string
@@ -551,7 +554,7 @@ export type Database = {
     }
     Enums: {
       bot_identifier: "openai_virtual_assistant"
-      file_content_type: "uncategorized" | "product_image"
+      file_content_type: "uncategorized" | "product_image" | "payment_qr"
       order_status:
         | "pending"
         | "confirmed"
@@ -685,7 +688,7 @@ export const Constants = {
   public: {
     Enums: {
       bot_identifier: ["openai_virtual_assistant"],
-      file_content_type: ["uncategorized", "product_image"],
+      file_content_type: ["uncategorized", "product_image", "payment_qr"],
       order_status: [
         "pending",
         "confirmed",

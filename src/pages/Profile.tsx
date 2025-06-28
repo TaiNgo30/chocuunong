@@ -19,6 +19,12 @@ import { MapPin, Phone, Shield, Store, User } from "lucide-react";
 import Header from "@/components/Header";
 import FileUploadDialog from "@/components/FileUploadDialog";
 import { uploadFilesToService } from "@/services/uploadService";
+import ImageLightbox from "@/components/ImageLightbox";
+import clsx from "clsx";
+import {
+  useCreateUploadRecords,
+  useUploadRecords,
+} from "@/hooks/useUploadRecords";
 
 const Profile = () => {
   const { user } = useAuth();
@@ -28,13 +34,32 @@ const Profile = () => {
     phone: "",
     address: "",
     shop_description: "",
+    payment_description: "",
     avatar_url: "",
     user_type: "buyer",
     is_verified: false,
   });
-  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+
+  const {
+    data: fetchedQR,
+    isLoading: fetchingQR,
+    error: fetchingQRError,
+  } = useUploadRecords({
+    content_type: "payment_qr",
+    user_id: user.id,
+    order: "desc",
+    limit: 1,
+  });
+
+  const [uploadAvatarDialogOpen, setUploadAvatarDialogOpen] = useState(false);
   const [uploadedAvatar, setUploadedAvatar] = useState<File>();
   const [avatarPreview, setAvatarPreview] = useState<string>();
+
+  const [uploadQRDialogOpen, setUploadQRDialogOpen] = useState(false);
+  const [uploadedQR, setUploadedQR] = useState<File>();
+  const [qrPreview, setQRPreview] = useState<string>();
+
+  const { mutate: createUploadRecords, isPending } = useCreateUploadRecords();
 
   useEffect(() => {
     if (user) {
@@ -65,6 +90,22 @@ const Profile = () => {
     setLoading(true);
 
     try {
+      const results = await uploadFilesToService(
+        [uploadedQR],
+        "paymentQRs",
+      );
+      const result = results[0];
+      if (result) {
+        createUploadRecords([{
+          url: result.url,
+          content_type: "payment_qr",
+        }]);
+
+        setUploadedQR(undefined);
+      } else {
+        throw new Error("No errors received, but qr upload result is empty");
+      }
+
       const { error } = await supabase
         .from("profiles")
         .update({
@@ -72,6 +113,7 @@ const Profile = () => {
           phone: profile.phone,
           address: profile.address,
           shop_description: profile.shop_description,
+          payment_description: profile.payment_description,
           avatar_url: profile.avatar_url,
         })
         .eq("id", user?.id);
@@ -152,6 +194,25 @@ const Profile = () => {
     }
   };
 
+  const handleChangeUploadQR = (files: FileList) => {
+    const images = Array.from(files);
+    const newQR = images[0];
+    if (newQR) {
+      const url = URL.createObjectURL(newQR);
+      setQRPreview(url);
+      setUploadedQR(newQR);
+    } else {
+      toast.error("Lỗi khi tải ảnh");
+    }
+  };
+
+  const clearUploadQR = () => {
+    setQRPreview(undefined);
+    setUploadedQR(undefined);
+  };
+
+  const displayedQR = qrPreview ?? fetchedQR?.[0]?.url;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -185,7 +246,7 @@ const Profile = () => {
                         <button
                           className="px-2 py-1 text-sm rounded-md bg-gray-100 hover:bg-gray-200"
                           type="button"
-                          onClick={() => setUploadDialogOpen(true)}
+                          onClick={() => setUploadAvatarDialogOpen(true)}
                         >
                           Thay ảnh đại diện
                         </button>
@@ -213,8 +274,8 @@ const Profile = () => {
                     )}
 
                   <FileUploadDialog
-                    open={uploadDialogOpen}
-                    onOpenChange={setUploadDialogOpen}
+                    open={uploadAvatarDialogOpen}
+                    onOpenChange={setUploadAvatarDialogOpen}
                     multiple={false}
                     accept="image/*"
                     label="Nhấn để chọn ảnh đại diện"
@@ -330,20 +391,80 @@ const Profile = () => {
                     </div>
 
                     {profile.user_type === "seller" && (
-                      <div>
-                        <Label htmlFor="shopDescription">Mô tả cửa hàng</Label>
-                        <Textarea
-                          id="shopDescription"
-                          placeholder="Giới thiệu về cửa hàng, sản phẩm của bạn..."
-                          value={profile.shop_description}
-                          onChange={(e) =>
-                            setProfile({
-                              ...profile,
-                              shop_description: e.target.value,
-                            })}
-                          rows={4}
-                        />
-                      </div>
+                      <>
+                        <div>
+                          <Label htmlFor="shopDescription">
+                            Mô tả cửa hàng
+                          </Label>
+                          <Textarea
+                            id="shopDescription"
+                            placeholder="Giới thiệu về cửa hàng, sản phẩm của bạn..."
+                            value={profile.shop_description}
+                            onChange={(e) =>
+                              setProfile({
+                                ...profile,
+                                shop_description: e.target.value,
+                              })}
+                            rows={4}
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="shopDescription">
+                            Phương thức thanh toán
+                          </Label>
+                          <Textarea
+                            id="shopDescription"
+                            placeholder="Ghi chi tiết về phương thức thanh toán của bạn"
+                            value={profile.payment_description}
+                            onChange={(e) =>
+                              setProfile({
+                                ...profile,
+                                payment_description: e.target.value,
+                              })}
+                            rows={4}
+                            className="mb-2"
+                          />
+                          <Label htmlFor="shopDescription">
+                            QR thanh toán
+                          </Label>
+                          <div
+                            className={clsx(
+                              "flex flex-col gap-0 p-2 rounded-md",
+                              displayedQR ? "bg-gray-200" : "",
+                            )}
+                          >
+                            {displayedQR && (
+                              <ImageLightbox
+                                src={displayedQR}
+                                alt={"Mã QR thanh toán"}
+                                className="w-full"
+                                imgClass="rounded-b-none"
+                              />
+                            )}
+                            <Button
+                              type="button"
+                              className={clsx(
+                                "w-full bg-blue-500 hover:bg-blue-400",
+                                displayedQR ? "rounded-t-none" : "",
+                              )}
+                              onClick={() => setUploadQRDialogOpen(true)}
+                              disabled={loading}
+                            >
+                              Cập nhật QR
+                            </Button>
+                          </div>
+                          <FileUploadDialog
+                            open={uploadQRDialogOpen}
+                            onOpenChange={setUploadQRDialogOpen}
+                            multiple={false}
+                            accept="image/*"
+                            label="Nhấn để chọn ảnh QR"
+                            hint="Chọn file ảnh với định dạng .jpg, .jpeg, .png, hoặc .gif"
+                            onUpload={(files) => handleChangeUploadQR(files)}
+                          />
+                        </div>
+                      </>
                     )}
 
                     <Button

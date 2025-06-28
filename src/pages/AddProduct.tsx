@@ -141,7 +141,7 @@ const AddProduct = () => {
     });
   };
 
-  const clearUploadImages = () => {
+  const clearProductImages = () => {
     setProductImagesPreview([]);
     setUploadedProductImages([]);
   };
@@ -396,7 +396,7 @@ const AddProduct = () => {
                       onOpenChange={setUploadCoverDialogOpen}
                       multiple={false}
                       accept="image/*"
-                      label="Nhấn để chọn ảnh đại diện"
+                      label="Nhấn để chọn ảnh bìa sản phẩm"
                       hint="Chọn file ảnh với định dạng .jpg, .jpeg, .png, hoặc .gif"
                       onUpload={(files) => handleChangeUploadCover(files)}
                     />
@@ -409,20 +409,32 @@ const AddProduct = () => {
                     className="flex justify-between items-center"
                   >
                     Ảnh sản phẩm
-                    <button
-                      className="px-2 py-1 text-sm text-white rounded-md bg-green-600 hover:bg-green-500 transition"
-                      type="button"
-                      onClick={() => setUploadProductImagesDialogOpen(true)}
-                    >
-                      Thêm ảnh
-                    </button>
+                    <div>
+                      {!!productImagesPreview.length &&
+                        (
+                          <button
+                            className="me-2 px-2 py-1 text-sm text-white rounded-md bg-red-600 hover:bg-red-500 transition"
+                            type="button"
+                            onClick={clearProductImages}
+                          >
+                            Xóa tất cả
+                          </button>
+                        )}
+                      <button
+                        className="px-2 py-1 text-sm text-white rounded-md bg-green-600 hover:bg-green-500 transition"
+                        type="button"
+                        onClick={() => setUploadProductImagesDialogOpen(true)}
+                      >
+                        Thêm ảnh
+                      </button>
+                    </div>
                   </Label>
                   <div className="relative bg-gray-200 p-4 rounded-md my-2">
                     <div className="flex flex-row flex-wrap justify-around gap-8">
                       {!productImagesPreview.length && (
                         <div className="flex flex-col items-center text-gray-600 gap-4">
                           <FileStack width={"120px"} height={"120px"} />
-                          <p>Hãy tải các hình ảnh mô tả về sản phẩm</p>
+                          <p>Hãy tải lên các hình ảnh mô tả về sản phẩm</p>
                         </div>
                       )}
                       {!!productImagesPreview.length &&
@@ -443,7 +455,7 @@ const AddProduct = () => {
                       onOpenChange={setUploadProductImagesDialogOpen}
                       multiple={true}
                       accept="image/*"
-                      label="Nhấn để chọn ảnh đại diện"
+                      label="Nhấn để chọn ảnh sản phẩm"
                       hint="Chọn file ảnh với định dạng .jpg, .jpeg, .png, hoặc .gif"
                       onUpload={(files) =>
                         handleChangeUploadProductImages(files)}
@@ -467,11 +479,10 @@ const AddProduct = () => {
                           className="pl-10"
                           placeholder="Đà Lạt, Lâm Đồng"
                           value={product.location}
-                          onChange={(e) =>
-                            setProduct({
-                              ...product,
-                              location: e.target.value,
-                            })}
+                          onChange={(e) => setProduct({
+                            ...product,
+                            location: e.target.value,
+                          })}
                         />
                       </div>
                     </div>
