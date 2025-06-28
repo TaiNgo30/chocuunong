@@ -90,20 +90,22 @@ const Profile = () => {
     setLoading(true);
 
     try {
-      const results = await uploadFilesToService(
-        [uploadedQR],
-        "paymentQRs",
-      );
-      const result = results[0];
-      if (result) {
-        createUploadRecords([{
-          url: result.url,
-          content_type: "payment_qr",
-        }]);
+      if (uploadedQR) {
+        const results = await uploadFilesToService(
+          [uploadedQR],
+          "paymentQRs",
+        );
+        const result = results[0];
+        if (result) {
+          createUploadRecords([{
+            url: result.url,
+            content_type: "payment_qr",
+          }]);
 
-        setUploadedQR(undefined);
-      } else {
-        throw new Error("No errors received, but qr upload result is empty");
+          setUploadedQR(undefined);
+        } else {
+          throw new Error("No errors received, but qr upload result is empty");
+        }
       }
 
       const { error } = await supabase
@@ -425,7 +427,7 @@ const Profile = () => {
                             rows={4}
                             className="mb-2"
                           />
-                          <Label htmlFor="shopDescription">
+                          <Label>
                             QR thanh toán
                           </Label>
                           <div
