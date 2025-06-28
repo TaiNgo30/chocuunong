@@ -34,11 +34,11 @@ const ProductDetail = () => {
         result.push(...productImages.map((image) => image.url));
       }
       else {
-        result.push(product.image_url || "/placeholder.svg");
+        result.push(product?.image_url || "/placeholder.svg");
       }
 
       return result;
-    }, [product.image_url, productImages])
+    }, [product, productImages])
 
     if (isLoading) {
         return (

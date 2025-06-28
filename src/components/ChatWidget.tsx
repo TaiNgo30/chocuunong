@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as Popover from "@radix-ui/react-popover";
-import { CircleAlert, Megaphone, MessageCircleMore, X } from "lucide-react";
+import { CircleAlert, Megaphone, MessageCircleMore, SquareChartGantt, X } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   ChatMessage,
@@ -121,7 +121,7 @@ const ChatWidget: React.FC = () => {
     setMessageList((prev) => {
       return [{
         id: PENDING_MSG_TEMP_ID,
-        sender_id: user.id,
+        sender_id: user?.id,
         updated_at: PENDING_MSG_TIMESTAMP,
         content: message,
         bot_receiver_id: "openai_virtual_assistant",
@@ -149,6 +149,19 @@ const ChatWidget: React.FC = () => {
               className={`animate-spin rounded-full border-2 border-t-transparent border-gray-400`}
               style={{ width: 30, height: 30 }}
             />
+          </div>
+        </div>
+      );
+    }
+
+    if (!user) {
+      return (
+        <div className="h-full flex flex-col">
+          <div className="grow flex flex-col gap-2 p-4 justify-center items-center">
+            <SquareChartGantt width={"30%"} height={"30%"} color="gray" />
+            <div className="text-gray-400 text-center">
+              Hãy đăng nhập để bắt đầu trò chuyện với trợ lý ảo!
+            </div>
           </div>
         </div>
       );
