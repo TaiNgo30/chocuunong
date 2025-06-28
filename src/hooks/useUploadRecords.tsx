@@ -3,9 +3,10 @@ import { useAuth } from "./useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { FileContentType } from "@/integrations/supabase/types";
 
-type UploadRecordProps = {
+export type UploadRecordProps = {
   url: string;
   content_type?: FileContentType;
+  ref?: string;
 };
 
 export const useCreateUploadRecords = () => {
@@ -37,26 +38,32 @@ export const useCreateUploadRecords = () => {
 };
 
 export type UploadQueryOptions = {
+  user_id?: string;
+  ref?: string;
   content_type?: FileContentType;
   startDate?: string; // ISO string
-  endDate?: string;   // ISO string
+  endDate?: string; // ISO string
   search?: string;
   limit?: number;
   offset?: number;
   order?: "asc" | "desc";
 };
 
-export const useUploads = (options: UploadQueryOptions = {}) => {
+export const useUploadRecords = (options: UploadQueryOptions = {}) => {
   return useQuery({
     queryKey: ["uploads", options],
     queryFn: async () => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user?.user) throw new Error("User not authenticated");
-
       let query = supabase
         .from("cloud_uploads")
-        .select("*")
-        .eq("user_id", user.user.id);
+        .select("*");
+
+      if (options.user_id) {
+        query = query.eq("user_id", options.user_id);
+      }
+
+      if (options.ref) {
+        query = query.eq("ref", options.ref);
+      }
 
       if (options.content_type) {
         query = query.eq("content_type", options.content_type);
@@ -94,4 +101,36 @@ export const useUploads = (options: UploadQueryOptions = {}) => {
       return data;
     },
   });
+};
+
+export const pruneUploadRecordsByRef = async (ref: string, keepUrls: string[]) => {
+  // First, get all records with that ref
+  const { data: allUploads, error: fetchError } = await supabase
+    .from("cloud_uploads")
+    .select("id, url")
+    .eq("ref", ref);
+
+  if (fetchError) {
+    console.error("Failed to fetch uploads for pruning:", fetchError);
+    throw fetchError;
+  }
+
+  // Filter out those not in the keep list
+  const toDelete = allUploads?.filter(upload => !keepUrls.includes(upload.url)) ?? [];
+
+  if (toDelete.length === 0) return { deleted: 0 };
+
+  const idsToDelete = toDelete.map(u => u.id);
+
+  const { error: deleteError } = await supabase
+    .from("cloud_uploads")
+    .delete()
+    .in("id", idsToDelete);
+
+  if (deleteError) {
+    console.error("Failed to delete old uploads:", deleteError);
+    throw deleteError;
+  }
+
+  return { deleted: idsToDelete.length };
 };

@@ -117,40 +117,39 @@ const Profile = () => {
     setUploadedAvatar(undefined);
   };
 
-  const updateAvatar = () => {
+  const updateAvatar = async () => {
     if (!uploadedAvatar) {
       toast.error("Hãy tải ảnh lên trước khi cập nhật ảnh đại diện");
       return;
     }
 
-    const wrap = async () => {
+    try {
       const results = await uploadFilesToService(
         [uploadedAvatar],
         "profileImages",
       );
       const result = results[0];
       if (result) {
-        try {
-          const { error } = await supabase
-            .from("profiles")
-            .update({
-              avatar_url: result.url,
-            })
-            .eq("id", user?.id);
+        const { error } = await supabase
+          .from("profiles")
+          .update({
+            avatar_url: result.url,
+          })
+          .eq("id", user?.id);
 
-          if (error) throw error;
+        if (error) throw error;
 
-          toast.success("Cập nhật ảnh đại diện thành công!");
-          setUploadedAvatar(undefined);
-        } catch (error) {
-          console.error("Error updating profile:", error);
-          toast.error("Lỗi khi cập nhật ảnh đại diện");
-        } finally {
-          setLoading(false);
-        }
+        toast.success("Cập nhật ảnh đại diện thành công!");
+        setUploadedAvatar(undefined);
+      } else {
+        throw new Error("No errors received, but the upload result is empty");
       }
-    };
-    wrap();
+    } catch (error) {
+      console.error("Error updating profile:", error);
+      toast.error("Lỗi khi cập nhật ảnh đại diện");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (

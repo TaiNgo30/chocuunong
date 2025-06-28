@@ -32,8 +32,8 @@ const FileUploadDialog: React.FC<Props> = ({
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
       <Dialog.Portal>
-        <Dialog.Overlay className="fixed inset-0 bg-black/50" />
-        <Dialog.Content className="fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg">
+        <Dialog.Overlay className="fixed inset-0 bg-black/50 z-[60]" />
+        <Dialog.Content className="fixed left-1/2 top-1/2 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-6 shadow-lg z-[70]">
           <div className="flex items-center justify-between mb-4">
             <Dialog.Title className="text-lg font-medium">Tải tệp lên</Dialog.Title>
             <Dialog.Close asChild>

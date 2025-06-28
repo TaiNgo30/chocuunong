@@ -78,21 +78,24 @@ export type Database = {
       cloud_uploads: {
         Row: {
           content_type: Database["public"]["Enums"]["file_content_type"]
-          id: number
+          id: string
+          ref: string | null
           upload_at: string
           url: string
           user_id: string | null
         }
         Insert: {
           content_type?: Database["public"]["Enums"]["file_content_type"]
-          id?: number
+          id?: string
+          ref?: string | null
           upload_at?: string
           url: string
           user_id?: string | null
         }
         Update: {
           content_type?: Database["public"]["Enums"]["file_content_type"]
-          id?: number
+          id?: string
+          ref?: string | null
           upload_at?: string
           url?: string
           user_id?: string | null
