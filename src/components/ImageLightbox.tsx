@@ -7,9 +7,10 @@ interface Props {
   alt?: string;
   onRemove?: () => void;
   className?: string;
+  imgClass?: string;
 }
 
-const ImageLightbox: React.FC<Props> = ({ src, alt = '', onRemove, className }) => {
+const ImageLightbox: React.FC<Props> = ({ src, alt = '', onRemove, className, imgClass }) => {
   const [open, setOpen] = useState(false);
 
   return (
@@ -19,7 +20,7 @@ const ImageLightbox: React.FC<Props> = ({ src, alt = '', onRemove, className }) 
           <img
             src={src}
             alt={alt}
-            className="object-cover rounded-md w-full h-full"
+            className={`object-cover rounded-md w-full h-full ${imgClass}`}
           />
 
           {onRemove && (
