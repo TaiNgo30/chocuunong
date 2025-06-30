@@ -561,6 +561,7 @@ export type Database = {
         | "processing"
         | "shipping"
         | "delivered"
+        | "received"
         | "cancelled"
       payment_method: "cod" | "bank_transfer" | "e_wallet"
       product_category:
@@ -695,6 +696,7 @@ export const Constants = {
         "processing",
         "shipping",
         "delivered",
+        "received",
         "cancelled",
       ],
       payment_method: ["cod", "bank_transfer", "e_wallet"],
@@ -718,3 +720,15 @@ export type BotIdentification = (typeof BOT_IDENTIFICATIONS)[number];
 export const FILE_CONTENT_TYPES = Constants.public.Enums.file_content_type;
 export type FileContentType = (typeof FILE_CONTENT_TYPES)[number];
 
+export const ORDER_STATUSES = Constants.public.Enums.order_status;
+export type OrderStatus = (typeof ORDER_STATUSES)[number];
+
+export const ORDER_STATUS_LABELS = {
+  pending: { label: "Chờ xác nhận", color: "text-yellow-600 bg-yellow-100" },
+  confirmed: { label: "Đã xác nhận", color: "text-blue-600 bg-blue-100" },
+  processing: { label: "Đang xử lý", color: "text-purple-600 bg-purple-100" },
+  shipping: { label: "Đang giao", color: "text-orange-600 bg-orange-100" },
+  delivered: { label: "Đã giao", color: "text-green-600 bg-green-100" },
+  received: { label: "Đã hoàn thành", color: "text-white bg-green-700" },
+  cancelled: { label: "Đã hủy", color: "text-red-600 bg-red-100" },
+};
