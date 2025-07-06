@@ -35,6 +35,10 @@ import FileUploadDialog from "@/components/FileUploadDialog";
 import ImageLightbox from "@/components/ImageLightbox";
 import { uploadFilesToService } from "@/services/uploadService";
 import { useCreateUploadRecords } from "@/hooks/useUploadRecords";
+import { Database } from "@/integrations/supabase/types";
+
+type Category = Database["public"]["Tables"]["categories"]["Row"];
+
 
 const AddProduct = () => {
   const { user } = useAuth();
@@ -268,7 +272,7 @@ const AddProduct = () => {
                         <SelectValue placeholder="Chọn danh mục" />
                       </SelectTrigger>
                       <SelectContent>
-                        {categories.map((category: any) => (
+                        {categories.map((category: Category) => (
                           <SelectItem key={category.id} value={category.id}>
                             {category.icon} {category.name}
                           </SelectItem>
