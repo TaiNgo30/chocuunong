@@ -8,14 +8,16 @@ import {
 } from "./ui/card";
 import { JoinedOrder } from "@/pages/Orders";
 import { ORDER_STATUS_LABELS } from "@/integrations/supabase/types";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Button } from "./ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import * as Dialog from "@radix-ui/react-dialog";
 
 interface OrderDetailsCardProps {
   order: JoinedOrder;
   onConfirmOrder?: () => void;
+  onCancelOrder?: () => void;
   className?: string;
 }
 
@@ -40,7 +42,7 @@ const steps = [
 ];
 
 const OrderDetailsCard = (
-  { order, onConfirmOrder, className }: OrderDetailsCardProps,
+  { order, onConfirmOrder, onCancelOrder, className }: OrderDetailsCardProps,
 ) => {
   const deliveryTime = useMemo(() => {
     const deliveryTimes = order?.order_items.map((item) =>
@@ -53,6 +55,11 @@ const OrderDetailsCard = (
       return deliveryTimes.reduce((a, b) => (b > a ? b : a), "");
     } else return null;
   }, [order?.order_items]);
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [pendingAction, setPendingAction] = useState<
+    "confirm" | "cancel" | null
+  >(null);
 
   const handleConfirmOrder = async () => {
     if (order) {
@@ -78,11 +85,39 @@ const OrderDetailsCard = (
     }
   };
 
+  const handleCancelOrder = async () => {
+    if (order) {
+      try {
+        const { error } = await supabase
+          .from("orders")
+          .update({
+            status: "cancelled",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("id", order.id);
+
+        if (error) throw error;
+
+        toast.success("Cập nhật trạng thái đơn hàng thành công");
+        if (onCancelOrder) onCancelOrder();
+      } catch (error) {
+        console.error("Error updating order status:", error);
+        toast.error("Có lỗi xảy ra khi cập nhật trạng thái");
+      }
+    } else {
+      toast.error("Không thể cập nhật trạng thái khi chưa chọn đơn hàng!");
+    }
+  };
+
   return (
     <Card
       className={clsx(
         "flex flex-col",
-        order?.status === "received" ? "border-green-500" : "",
+        order?.status === "received"
+          ? "border-green-500"
+          : order?.status === "cancelled"
+            ? "border-red-500"
+            : "",
         className,
       )}
     >
@@ -196,16 +231,71 @@ const OrderDetailsCard = (
           </div>
         </div>
         <div className="grow" />
-        {order.status === "delivered" && (
-          <div>
+        <div className="flex gap-2">
+          {order.status === "delivered" && (
             <Button
-              className="bg-green-600 hover:bg-green-700 sticky bottom-0"
-              onClick={handleConfirmOrder}
+              className="bg-green-600 hover:bg-green-700"
+              onClick={() => {
+                setPendingAction("confirm");
+                setDialogOpen(true);
+              }}
             >
               Đã nhận hàng
             </Button>
-          </div>
-        )}
+          )}
+
+          {(order.status !== "received" && order.status !== "cancelled") &&
+            (
+              <Button
+                className="bg-red-600 hover:bg-red-700"
+                onClick={() => {
+                  setPendingAction("cancel");
+                  setDialogOpen(true);
+                }}
+              >
+                {order.status == "delivered"
+                  ? "Trả lại đơn hàng"
+                  : "Hủy đơn hàng"}
+              </Button>
+            )}
+
+          <Dialog.Root open={dialogOpen} onOpenChange={setDialogOpen}>
+            <Dialog.Portal>
+              <Dialog.Overlay className="fixed inset-0 bg-black/40" />
+              <Dialog.Content className="bg-white rounded shadow p-6 fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col gap-4 z-50 min-w-[320px]">
+                <Dialog.Title className="font-bold text-lg">
+                  Xác nhận{" "}
+                  {pendingAction === "confirm" ? "nhận hàng" : "hủy đơn"}
+                </Dialog.Title>
+                <Dialog.Description>
+                  {pendingAction === "confirm"
+                    ? "Bạn xác nhận đã nhận được hàng và muốn hoàn tất đơn này?"
+                    : "Bạn chắc chắn muốn hủy đơn hàng này?"}
+                </Dialog.Description>
+                <div className="flex justify-end gap-2 mt-4">
+                  <Dialog.Close asChild>
+                    <Button variant="outline">Thoát</Button>
+                  </Dialog.Close>
+                  <Button
+                    className={pendingAction === "confirm"
+                      ? "bg-green-600 hover:bg-green-700"
+                      : "bg-red-600 hover:bg-red-700"}
+                    onClick={async () => {
+                      setDialogOpen(false);
+                      if (pendingAction === "confirm") {
+                        await handleConfirmOrder();
+                      } else if (pendingAction === "cancel") {
+                        await handleCancelOrder();
+                      }
+                    }}
+                  >
+                    {pendingAction === "confirm" ? "Xác nhận" : "Hủy đơn"}
+                  </Button>
+                </div>
+              </Dialog.Content>
+            </Dialog.Portal>
+          </Dialog.Root>
+        </div>
       </CardContent>
     </Card>
   );

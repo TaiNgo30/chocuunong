@@ -331,14 +331,19 @@ const SellerDashboard = () => {
                           updateOrderStatus(order.id, value as OrderStatus)}
                         buttonClass="px-2 py-1 text-sm"
                       />
-                      <button
-                        onClick={() => {
-                          updateOrderStatus(order.id, "cancelled");
-                        }}
-                        className="px-2 py-1 text-sm text-white rounded-md bg-red-600 hover:bg-red-500 transition"
-                      >
-                        Hủy đơn hàng
-                      </button>
+                      {order.status !== "delivered" &&
+                        (
+                          <button
+                            onClick={() => {
+                              updateOrderStatus(order.id, "cancelled");
+                            }}
+                            className="px-2 py-1 text-sm text-white rounded-md bg-red-600 hover:bg-red-500 transition"
+                          >
+                            {order.status == "shipping"
+                              ? "Thu lại đơn hàng"
+                              : "Hủy đơn hàng"}
+                          </button>
+                        )}
                     </div>
                   </div>
                 ))}

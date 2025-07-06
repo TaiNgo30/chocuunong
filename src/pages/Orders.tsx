@@ -164,6 +164,10 @@ const OrderDetails = () => {
                 setSelectedOrder((prev) => {
                   return ({ ...prev, status: "received" });
                 })}
+              onCancelOrder={() =>
+                setSelectedOrder((prev) => {
+                  return ({ ...prev, status: "cancelled" });
+                })}
             />
 
             {shouldDisplayPayment &&
